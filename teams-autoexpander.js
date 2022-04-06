@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Teams Auto-Expand Chat
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Auto-Expand Chats Topics
 // @author       FHaze
 // @match        https://teams.microsoft.com/_
@@ -46,7 +46,6 @@
     const TeamsAutoExpand = ({chatMonted, onChannelClick}) => {
         window.onhashchange = e => {
             if (isUrlChat(e.newURL) && !isUrlChat(e.oldURL)) {
-                console.log("TITLE", document.querySelectorAll("h2[data-tid=leftRailHeaderTitle]")[0]?.innerHTML)
                 chatReady(() => {
                     chatMonted()
                     addEventsListeners(onChannelClick)
