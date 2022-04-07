@@ -59,7 +59,8 @@
     }
 
     const doMagic = () => {
-        const links = document.querySelectorAll("[data-tid=messageBodyCollapsedString]")
+        const links = Array.from(document.querySelectorAll("[data-tid=messageBodyCollapsedString]"))
+          .filter(l => !l.children[2].innerHTML.contains("Collapse all"))
         console.log(`[Teams Auto-Expand Chat] Expanding ${links.length} tabs`)
         links.forEach(l => l.click())
         setTimeout(() => { document.querySelectorAll("virtual-repeat")[0].scrollTop = 1_000_000_000 }, 200)
