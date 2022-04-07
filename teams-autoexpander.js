@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Teams Auto-Expand Chat
 // @namespace    http://tampermonkey.net/
-// @version      0.4
+// @version      0.5
 // @description  Auto-Expand Chats Topics
 // @author       FHaze
 // @match        https://teams.microsoft.com/_
