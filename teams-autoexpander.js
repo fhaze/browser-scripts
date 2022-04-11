@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Teams Auto-Expand Chat
 // @namespace    http://tampermonkey.net/
-// @version      0.5
+// @version      0.6
 // @description  Auto-Expand Chats Topics
 // @author       FHaze
 // @match        https://teams.microsoft.com/_
@@ -14,12 +14,29 @@
 
     const isUrlChat = url => url.startsWith("https://teams.microsoft.com/_#/conversations") && url.contains("ctx=channel") && !url.contains("replyChainId")
 
-    const addEventsListeners = event => {
+    const doMagic = () => {
+        const links = Array.from(document.querySelectorAll("[data-tid=messageBodyCollapsedString]"))
+          .filter(l => !l.children[2].innerHTML.contains("Collapse all"))
+        console.log(`[Teams Auto-Expand Chat] Expanding ${links.length} tabs`)
+        links.forEach(l => l.click())
+        setTimeout(() => { document.querySelectorAll("virtual-repeat")[0].scrollTop = 1_000_000_000 }, 200)
+    }
+
+    const addEventsListeners = () => {
         const channelList = document.querySelectorAll("li.animate-channel-item")
-        console.log(`[Teams Auto-Expand Chat] Adding Channel listener for ${channelList.length} channels`)
+        console.log(`[Teams Auto-Expand Chat] Adding click listener for ${channelList.length} channels`)
         channelList.forEach(ch => {
-            ch.removeEventListener("click", event)
-            ch.addEventListener("click", event)
+            ch.removeEventListener("click", doMagic)
+            ch.addEventListener("click", doMagic)
+        })
+    }
+
+    const addHeaderEventsListeners = () => {
+        const channelList = document.querySelectorAll("h3.channel-list-team-header")
+        console.log(`[Teams Auto-Expand Chat] Adding click listener for ${channelList.length} header channels`)
+        channelList.forEach(ch => {
+            ch.removeEventListener("click", addEventsListeners)
+            ch.addEventListener("click", addEventsListeners)
         })
     }
 
@@ -43,31 +60,24 @@
         }, 500)
     }
 
-    const TeamsAutoExpand = ({chatMonted, onChannelClick}) => {
+    const TeamsAutoExpand = ({chatMonted}) => {
         window.onhashchange = e => {
             if (isUrlChat(e.newURL) && !isUrlChat(e.oldURL)) {
                 chatReady(() => {
                     chatMonted()
-                    addEventsListeners(onChannelClick)
+                    addEventsListeners()
+                    addHeaderEventsListeners()
                 })
             }
         }
         chatReady(() => {
             chatMonted()
-            addEventsListeners(onChannelClick)
+            addEventsListeners()
+            addHeaderEventsListeners()
         })
     }
 
-    const doMagic = () => {
-        const links = Array.from(document.querySelectorAll("[data-tid=messageBodyCollapsedString]"))
-          .filter(l => !l.children[2].innerHTML.contains("Collapse all"))
-        console.log(`[Teams Auto-Expand Chat] Expanding ${links.length} tabs`)
-        links.forEach(l => l.click())
-        setTimeout(() => { document.querySelectorAll("virtual-repeat")[0].scrollTop = 1_000_000_000 }, 200)
-    }
-
     TeamsAutoExpand({
-        chatMonted: () => doMagic(),
-        onChannelClick: () => doMagic()
+        chatMonted: () => doMagic()
     })
 })();
